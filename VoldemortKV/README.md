@@ -5,6 +5,8 @@ This folder shows Pluscal/TLA+ modeling of [Voldemort distributed key value stor
 VoldemortSimple modeling post
 http://muratbuffalo.blogspot.com/2016/11/modeling-replicated-storage-system-in.html
 
+VoldChain modeling post (chain-replicated distributed k-v)
+http://muratbuffalo.blogspot.com/2016/12/tla-project2-solution-2016.html
 
 ## Installation
 
