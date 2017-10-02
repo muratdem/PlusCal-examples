@@ -1,6 +1,8 @@
 ## Synopsis
 
 This project includes several examples of Pluscal/TLA+ modeling of distributed systems/protocols.
+Also see https://github.com/muratdem/HLC for Hybrid Clocks modeling.
+
 For more examples and reading on Pluscal/TLA+, [you can check my blog] (http://muratbuffalo.blogspot.com)
 
 [This directs you to the blog posts about Pluscal/TLA+.]
