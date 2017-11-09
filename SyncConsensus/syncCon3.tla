@@ -4,9 +4,8 @@
 (***************************************************************)
 EXTENDS Integers, Sequences, FiniteSets, TLC
 CONSTANTS N, FAILNUM
-ASSUME N=<5 /\ 0=<FAILNUM /\ FAILNUM=<4
+ASSUME N=<7 /\ 0=<FAILNUM /\ FAILNUM=<4
 Nodes == 1..N
-
 (* 
 --algorithm syncCon3
 {variable FailNum=FAILNUM, \* Initialization block
@@ -32,16 +31,17 @@ Nodes == 1..N
   {
 P: while (up[self] /\ ~t[self]){
      if (d[self]=-1) d[self]:=self; \* vote is set
-     Q:=Nodes;
+     Q:=Nodes; \* send message to up nodes
 PS:  while (up[self] /\ Q # {}){ \* send vote to mb[p] one by one; this node can fail in between
-         with (p \in Q) {
-           mb[p]:= mb[p] \union {d[self]}; \* skip for attacking generals impossibility
-           Q:= Q \ {p};
-           MaybeFail();
+         with (p \in Q) { 
+          if (pt[p]>=pt[self] \/ ~up[p]){\* send msgs for the same round
+            mb[p]:= mb[p] \union {d[self],self}; 
+            Q:= Q \ {p};}; \* also down process with stale pt should not stop progress
+          MaybeFail();
          };               
       };\* end_while
       if (up[self]) pt[self]:= pt[self]+1; \* move to next round
-PR:   await (up[self] /\ (\A k \in Nodes: up[k] => pt[k]=pt[self])); \* wait for others to move
+PR:   await (up[self] /\ (\A k \in Nodes: (up[k] /\ ~t[k]) => pt[k]>=pt[self])); \* wait for others to move
       d[self]:=SetMin(mb[self]);
       if (pmb=mb[self]) t[self]:=TRUE;
       pmb:=mb[self];
@@ -91,8 +91,11 @@ P(self) == /\ pc[self] = "P"
 PS(self) == /\ pc[self] = "PS"
             /\ IF up[self] /\ Q[self] # {}
                   THEN /\ \E p \in Q[self]:
-                            /\ mb' = [mb EXCEPT ![p] = mb[p] \union {d[self]}]
-                            /\ Q' = [Q EXCEPT ![self] = Q[self] \ {p}]
+                            /\ IF pt[p]>=pt[self] \/ ~up[p]
+                                  THEN /\ mb' = [mb EXCEPT ![p] = mb[p] \union {d[self],self}]
+                                       /\ Q' = [Q EXCEPT ![self] = Q[self] \ {p}]
+                                  ELSE /\ TRUE
+                                       /\ UNCHANGED << mb, Q >>
                             /\ IF FailNum>0 /\ up[self]
                                   THEN /\ \/ /\ up' = [up EXCEPT ![self] = FALSE]
                                              /\ FailNum' = FailNum-1
@@ -111,7 +114,7 @@ PS(self) == /\ pc[self] = "PS"
             /\ UNCHANGED << t, d, pmb >>
 
 PR(self) == /\ pc[self] = "PR"
-            /\ (up[self] /\ (\A k \in Nodes: up[k] => pt[k]=pt[self]))
+            /\ (up[self] /\ (\A k \in Nodes: (up[k] /\ ~t[k]) => pt[k]>=pt[self]))
             /\ d' = [d EXCEPT ![self] = SetMin(mb[self])]
             /\ IF pmb[self]=mb[self]
                   THEN /\ t' = [t EXCEPT ![self] = TRUE]

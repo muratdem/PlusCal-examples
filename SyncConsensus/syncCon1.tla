@@ -41,7 +41,7 @@ PS:  while (up[self] /\ Q # {}){ \* send vote to mb[p] one by one; this node can
          };               
       };\* end_while
       if (up[self]) pt[self]:= pt[self]+1; \* move to next round
-PR:   await (up[self] /\ (\A k \in Nodes: up[k] => pt[k]=pt[self])); \* wait for others to move
+PR:   await (up[self] /\ (\A k \in Nodes: up[k] => pt[k]>=pt[self])); \* wait for others to move
       d[self]:=SetMin(mb[self]);
       t[self]:=TRUE;
    }; \* end_if  
