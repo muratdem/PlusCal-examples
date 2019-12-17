@@ -135,3 +135,5 @@ MinorityReport == ~ \A j \in Procs: decided[j]=0
 Progress  == <> (\A j \in Procs: decided[j]#-1) 
 
 =========================================================
+See https://muratbuffalo.blogspot.com/2019/12/the-ben-or-decentralized-consensus.html
+for explanation.
