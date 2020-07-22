@@ -107,7 +107,7 @@ Spec == /\ Init /\ [][Next]_vars
 
 \* Check three finality rule!!
 Consistency == \A i,j \in Nodes: ThreeCons(nChain[i]) /\ ThreeCons(nChain[j]) /\ Len(nChain[i])=< Len(nChain[j]) 
-                                 => \A k \in 1..Len(nChain[i])-1: nChain[i][k]=nChain[j][Len(nChain[j])-Len(nChain[i])+k]
+                                 => \A k \in 1..Len(nChain[i]): nChain[i][k]=nChain[j][Len(nChain[j])-Len(nChain[i])+k]
 Bait2 == ~( \E i \in Nodes: Len(nChain[i])>1 /\ Head(nChain[i])= Head(Tail(nChain[i]))+1 )
 Bait3 == ~( \E i \in Nodes: Len(nChain[i])>2 /\ Head(nChain[i])= Head(Tail(nChain[i]))+1 
             /\ Head(Tail(nChain[i]))=Head(Tail(Tail(nChain[i])))+1 )
