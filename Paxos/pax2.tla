@@ -41,12 +41,9 @@ Ballots == 0..MAXB
 \* \* leader calls this to collect p1b msgs from acceptors
    macro CollectP1 (b) 
    {
-    await \/ (Cardinality(SentLMsgs("p1b",b)) * 2 > Cardinality(Acceptor))
-          \/ (\E B \in Ballots: B>b /\ SentLMsgs("p1a",B)#{});
-    if (~(\E B \in Ballots: B>b /\ SentLMsgs("p1a",B)#{})) {
-       elected:=TRUE;
-       pVal:=UNION ExtractValSet(SentLMsgs("p1b",b));
-    }  
+    await Cardinality(SentLMsgs("p1b",b)) * 2 > Cardinality(Acceptor);
+    elected:=TRUE;
+    pVal:=UNION ExtractValSet(SentLMsgs("p1b",b));
    }
 
 
