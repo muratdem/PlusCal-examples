@@ -39,14 +39,14 @@ define {
 fair process (Bank \in Sides) 
 {
 S: while (TRUE) {
-    either {
-LOAD:   await (banks[self]#{} /\  boat={});
+    either { \* LOAD 
+        await (banks[self]#{} /\  boat={});
         with (P \in SafeBoats(self)) {
             boat := P;
             banks[self] := banks[self] \ P;
         }  
-    } or {
-UNLD:   await (boat#{});
+    } or { \* UNLOAD
+        await (boat#{});
         banks[self] :=  banks[self] \union boat;
         boat := {};
     }
@@ -56,8 +56,8 @@ UNLD:   await (boat#{});
 
 } \* end algorithm
 *)
-\* BEGIN TRANSLATION (chksum(pcal) = "a2c13406" /\ chksum(tla) = "7566b439")
-VARIABLES banks, boat, pc
+\* BEGIN TRANSLATION (chksum(pcal) = "3bc90940" /\ chksum(tla) = "2c10c4a9")
+VARIABLES banks, boat
 
 (* define statement *)
 SafeBoats(s) ==
@@ -76,34 +76,21 @@ TypeOK ==
 NotSolved == Cardinality(banks[2]) < 4
 
 
-vars == << banks, boat, pc >>
+vars == << banks, boat >>
 
 ProcSet == (Sides)
 
 Init == (* Global variables *)
         /\ banks = << {C,G,W,F}, {} >>
         /\ boat = {}
-        /\ pc = [self \in ProcSet |-> "S"]
 
-S(self) == /\ pc[self] = "S"
-           /\ \/ /\ pc' = [pc EXCEPT ![self] = "LOAD"]
-              \/ /\ pc' = [pc EXCEPT ![self] = "UNLD"]
-           /\ UNCHANGED << banks, boat >>
-
-LOAD(self) == /\ pc[self] = "LOAD"
-              /\ (banks[self]#{} /\  boat={})
-              /\ \E P \in SafeBoats(self):
-                   /\ boat' = P
-                   /\ banks' = [banks EXCEPT ![self] = banks[self] \ P]
-              /\ pc' = [pc EXCEPT ![self] = "S"]
-
-UNLD(self) == /\ pc[self] = "UNLD"
-              /\ (boat#{})
-              /\ banks' = [banks EXCEPT ![self] = banks[self] \union boat]
-              /\ boat' = {}
-              /\ pc' = [pc EXCEPT ![self] = "S"]
-
-Bank(self) == S(self) \/ LOAD(self) \/ UNLD(self)
+Bank(self) == \/ /\ (banks[self]#{} /\  boat={})
+                 /\ \E P \in SafeBoats(self):
+                      /\ boat' = P
+                      /\ banks' = [banks EXCEPT ![self] = banks[self] \ P]
+              \/ /\ (boat#{})
+                 /\ banks' = [banks EXCEPT ![self] = banks[self] \union boat]
+                 /\ boat' = {}
 
 Next == (\E self \in Sides: Bank(self))
 
